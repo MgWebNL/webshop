@@ -1,0 +1,25 @@
+<?php return array (
+  'parameters' => 
+  array (
+    'database_host' => 'h2902314.stratoserver.net',
+    'database_port' => '',
+    'database_name' => 'local.shop',
+    'database_user' => 'local.shop',
+    'database_password' => 'Zaz3~2a3',
+    'database_prefix' => 'ps_',
+    'database_engine' => 'InnoDB',
+    'mailer_transport' => 'smtp',
+    'mailer_host' => '127.0.0.1',
+    'mailer_user' => NULL,
+    'mailer_password' => NULL,
+    'secret' => '2h2SAaqvw1VM1PYNs9ZrxvrxKGufQ9mueht6qGKjX9YIHnIpvfXrB0Bsed7NRCiH',
+    'ps_caching' => 'CacheMemcache',
+    'ps_cache_enable' => false,
+    'ps_creation_date' => '2021-01-15',
+    'locale' => 'nl-NL',
+    'use_debug_toolbar' => true,
+    'cookie_key' => 'dPe3Xe4q8ngQXu3qFIknrWjmtLamYtb8nZ8jyLPCAx1ZXuNHEikpNQ1DvKMqgM3N',
+    'cookie_iv' => 'NYzcyOWUdkwQak0GrGQLtXxejF7VfKbM',
+    'new_cookie_key' => 'def00000af4269cdd25d7be419f7cb2b07980fba22b512831edd029c3797052ba1838f2b9782423525787d149469b7477d71f34c574cd301b774731674d36ea690f5aeb0',
+  ),
+);

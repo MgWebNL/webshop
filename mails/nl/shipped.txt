@@ -1,0 +1,15 @@
+{shop_url}
+
+Hallo {firstname} {lastname},
+
+Bedankt voor het winkelen bij {shop_name}!
+
+Uw bestelling met referentie {order_name} is verzonden.
+
+Follow your order and download your invoice on our shop, go to the [Geschiedenis en details van mijn bestellingen]({history_url}) section of your customer account.
+
+If you have a guest account, you can follow your order via the [Bestelling volgen als gast]({guest_tracking_url}) section on our shop.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail&utm_campaign=footer_1-7)

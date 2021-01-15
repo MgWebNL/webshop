@@ -1,0 +1,4 @@
+*ERROR* 	v1.7.7.1	2021/01/15 - 15:46:24: Table name not set in DbQuery object. Cannot build a valid SQL query. at line 292 in file classes/db/DbQuery.php
+*ERROR* 	v1.7.7.1	2021/01/15 - 15:46:59: Table name not set in DbQuery object. Cannot build a valid SQL query. at line 292 in file classes/db/DbQuery.php
+*ERROR* 	v1.7.7.1	2021/01/15 - 15:47:12: Table name not set in DbQuery object. Cannot build a valid SQL query. at line 292 in file classes/db/DbQuery.php
+*ERROR* 	v1.7.7.1	2021/01/15 - 15:47:27: Table name not set in DbQuery object. Cannot build a valid SQL query. at line 292 in file classes/db/DbQuery.php
