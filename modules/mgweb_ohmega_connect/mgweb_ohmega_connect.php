@@ -251,17 +251,6 @@ class Mgweb_ohmega_connect extends Module
         $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
         $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> ''");
 
-//        foreach($data as $updateMe){
-//            $sql = $this->buildOhmegaSelectQuery($updateMe);
-//            $type = $this->getOhmegaQueryType($updateMe);
-//            if($type !== false){
-//                $ohmegaValues = $db->executeS($sql);
-//                $helper = new HelperList();
-//                $table .= $helper->generateList($ohmegaValues, $ohmegaValues[0]);
-//                print_r($ohmegaValues);
-//            }
-//        }
-
         $this->fields_list = array(
             'WBSMWFILE' => array(
                 'title' => $this->l('Id'),
@@ -293,10 +282,6 @@ class Mgweb_ohmega_connect extends Module
         $helper->token = Tools::getAdminTokenLite('AdminBcardprint');
         $helper->currentIndex = AdminController::$currentIndex;
         return $helper->generateList($data,$this->fields_list);
-
-        $table .= $helper->generateList($show, ["Tabel", "Veld", "Waarde"]);
-
-        return $table;
     }
 
     protected function buildOhmegaSelectQuery($data){

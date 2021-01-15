@@ -34,7 +34,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'mgweb_ohmega_connect` (
     PRIMARY KEY  (`id_mgweb_ohmega_connect`)
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'INSERT INTO `ps_mgweb_ohmega_connect` (`id_mgweb_ohmega_connect`) VALUES (NULL);';
+$sql[] = 'INSERT INTO `' . _DB_PREFIX_ . 'mgweb_ohmega_connect` (`id_mgweb_ohmega_connect`) VALUES (NULL);';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
