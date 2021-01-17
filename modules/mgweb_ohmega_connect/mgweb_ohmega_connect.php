@@ -247,7 +247,6 @@ class Mgweb_ohmega_connect extends Module
 
     protected function connectToOhmega(){
         $config = $this->checkConfig();
-        $dsn = 'mysql://'.$config['db_user'].':'.$config['db_pass'].'@'.$config['db_host'].':3306/'.$config['db_name'].'';
         $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
         $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> ''");
 
@@ -275,11 +274,11 @@ class Mgweb_ohmega_connect extends Module
         $helper->listTotal = count($data);
         $helper->actions = array('edit', 'delete', 'view','test');
         $helper->module = $this;
-        $helper->identifier = 'bcard_id';
-        $helper->show_toolbar = false;
+        $helper->identifier = 'WBSMWFILE';
+        $helper->show_toolbar = true;
         $helper->title = 'List of printable models';
         $helper->table = 'bcard';
-        $helper->token = Tools::getAdminTokenLite('AdminBcardprint');
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->currentIndex = AdminController::$currentIndex;
         return $helper->generateList($data,$this->fields_list);
     }
