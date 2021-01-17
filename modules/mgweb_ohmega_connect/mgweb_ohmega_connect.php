@@ -115,12 +115,7 @@ class Mgweb_ohmega_connect extends Module
 
                 if(!$externalDbError){
                     // SET CONFIG
-                    $result = Db::getInstance()->update('mgweb_ohmega_connect', array(
-                        'db_host' => ($host),
-                        'db_user' => ($user),
-                        'db_name' => ($name),
-//                    'db_pass' => ($pass),
-                    ), 'id_mgweb_ohmega_connect = 1');
+                    $result = Db::getInstance()->update('mgweb_ohmega_connect', $array, 'id_mgweb_ohmega_connect = 1');
 
                     if(!$result){
                         $output .= $this->displayError($this->l('Something went wrong during saving'));
@@ -247,6 +242,11 @@ class Mgweb_ohmega_connect extends Module
 
     protected function connectToOhmega(){
         $config = $this->checkConfig();
+
+        $externalDbError = (bool)Db::checkConnection($config['db_host'],$config['db_user'],$config['db_pass'],$config['db_name']);
+        if($externalDbError){
+            return null;
+        }
         $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
         $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> ''");
 
@@ -276,7 +276,7 @@ class Mgweb_ohmega_connect extends Module
         $helper->module = $this;
         $helper->identifier = 'WBSMWFILE';
         $helper->show_toolbar = true;
-        $helper->title = 'List of printable models';
+        $helper->title = 'List of rules to be updated';
         $helper->table = 'bcard';
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->currentIndex = AdminController::$currentIndex;
