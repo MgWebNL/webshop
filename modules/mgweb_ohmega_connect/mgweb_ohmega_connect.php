@@ -53,9 +53,6 @@ class Mgweb_ohmega_connect extends Module
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall this module? All data will be deleted!');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-
-        $this->cron_url = _PS_BASE_URL_._MODULE_DIR_.'mgweb_ohmega_connect/mgweb_ohmega_connect-cron.php?token='.substr(Tools::encrypt('mgweb_ohmega_connect/cron'), 0, 10);
-        print_r($this->cron_url);
     }
 
     /**
@@ -286,14 +283,26 @@ class Mgweb_ohmega_connect extends Module
         return $helper->generateList($data,$this->fields_list);
     }
 
-    protected function buildOhmegaSelectQuery($data){
+    public function getDataToSync(){
+        $config = $this->checkConfig();
+
+        $externalDbError = (bool)Db::checkConnection($config['db_host'],$config['db_user'],$config['db_pass'],$config['db_name']);
+        if($externalDbError){
+            return null;
+        }
+        $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
+        $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> ''");
+        return $data;
+    }
+
+    public function buildOhmegaSelectQuery($data){
         $table  = $data['WBSMWFILE'];
         $key    = $data['WBSMWKEY'];
         $value  = $data["WBSMWVALUE"];
         return "SELECT * FROM ".$table." WHERE ".$key." = '".$value."';";
     }
 
-    protected function getOhmegaQueryType($data){
+    public function getOhmegaQueryType($data){
         $table  = $data['WBSMWFILE'];
         switch ($table){
             case "FRbkhARTIKELGROEP":
