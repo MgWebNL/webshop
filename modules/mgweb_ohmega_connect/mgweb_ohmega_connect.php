@@ -53,6 +53,9 @@ class Mgweb_ohmega_connect extends Module
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall this module? All data will be deleted!');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
+
+        $this->cron_url = _PS_BASE_URL_._MODULE_DIR_.'mgweb_ohmega_connect/mgweb_ohmega_connect-cron.php?token='.substr(Tools::encrypt('mgweb_ohmega_connect/cron'), 0, 10);
+        print_r($this->cron_url);
     }
 
     /**
