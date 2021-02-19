@@ -291,7 +291,7 @@ class Mgweb_ohmega_connect extends Module
             return null;
         }
         $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
-        $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> ''");
+        $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> '' LIMIT 99999999");
         return $data;
     }
 
@@ -315,5 +315,32 @@ class Mgweb_ohmega_connect extends Module
             default:
                 return false;
         }
+    }
+
+    public static function slugify($text)
+    {
+        // replace non letter or digits by -
+        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, '-');
+
+        // remove duplicate -
+        $text = preg_replace('~-+~', '-', $text);
+
+        // lowercase
+        $text = substr(strtolower($text), 0, 30);
+
+        if (empty($text)) {
+            return 'n-a';
+        }
+
+        return $text;
     }
 }

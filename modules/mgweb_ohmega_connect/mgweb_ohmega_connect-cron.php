@@ -6,6 +6,8 @@
 
 */
 
+const OHMEGA_TAAL = 'CHQF6SB2';
+
 include(dirname(__FILE__).'/../../config/config.inc.php');
 
 include(dirname(__FILE__).'/../../init.php');
@@ -19,12 +21,15 @@ foreach($data as $sql){
     $query = $module->buildOhmegaSelectQuery($sql);
     $type = $module->getOhmegaQueryType($sql);
 
-    executeQuery($type, $query);
+    if(executeQuery($type, $query) === true){
+        // UPDATE RECORD MIDDLEWARE OHMEGA
+        updateMiddleware($sql["WBSMWNRINT"]);
+    }
 
     print_r($type);
 }
 
-mail('mike@mgweb.nl','Token ok', 'Token is ok');
+//mail('mike@mgweb.nl','Token ok', 'Token is ok');
 die();
 
 
@@ -43,29 +48,181 @@ function db(){
     return new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
 }
 
-
-
-function updateCategory($query){
+function updateMiddleware($p_sNrint){
+    $a["WBSMWVERWERKT"] = 1;
     $db = db();
-    $data = $db->executeS($query);
-    print_r($data); die();
-
-    $category = new Category;
-    $category->id = 0;
-    $category->active = 0;
-    $category->id_parent = 15;
-    $category->name = "category";
-    $category->link_rewrite = "one-category";
-//this will force ObjectModel to use your ID
-    $_GET['forceIDs'] = true;
-    $category->add();
+    $result = $db->executeS('UPDATE FRwebMIDDELWARE SET WBSMWVERWERKT = 1 WHERE WBSMWNRINT = "'.$p_sNrint.'"');
 }
 
+function updateCategory($query){
+    // INIT Ohmega DB && SELECT RECORD
+    $db = db();
+    $data = $db->getRow($query);
+
+    // CHECK FOR SUBCAT
+    $subId = Configuration::get('PS_HOME_CATEGORY');
+    if(!empty($data["BKHAG_BKHAGNRINT"])){
+        // CHECK FOR EXISTING MAPPING
+        $sql = 'SELECT * FROM `'._DB_PREFIX_.'mgweb_ohmega_connect_mapping` WHERE `type` = "FRbkhARTIKELGROEP" AND ohmega_id = "'.$data["BKHAG_BKHAGNRINT"].'";';
+        $mappingSub = Db::getInstance()->getRow($sql);
+        if($mappingSub){
+            $subId = $mappingSub["prestashop_id"];
+        }
+    }
+
+    // CHECK FOR EXISTING MAPPING
+    $sql = 'SELECT * FROM `'._DB_PREFIX_.'mgweb_ohmega_connect_mapping` WHERE `type` = "FRbkhARTIKELGROEP" AND ohmega_id = "'.$data["BKHAGNRINT"].'";';
+    $mapping = Db::getInstance()->getRow($sql);
+
+    // NO MAPPING = NEW ID + CREATE MAPPING
+    if(!$mapping){
+        // CREATE CAT
+        $category = new \PrestaShop\PrestaShop\Adapter\Entity\Category();
+        $category->active = 0;
+        $category->id_parent = $subId;
+        $category->name = [];
+        $category->link_rewrite = [];
+        foreach (Language::getLanguages(false) as $lang){
+            $category->name[$lang['id_lang']] = $data["BKHAGOMS"];
+            $category->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAGOMS"]);
+        }
+        $category->add();
+
+        // CREATE MAPPING
+        $id = $category->getFields()["id_category"];
+        $mappingData = [
+            "id_mgweb_ohmega_connect_mapping" => 0,
+            "type" => "FRbkhARTIKELGROEP",
+            "ohmega_id" => $data["BKHAGNRINT"],
+            "prestashop_id" => $id
+        ];
+        Db::getInstance()->insert("mgweb_ohmega_connect_mapping", $mappingData);
+    }
+
+    // OK MAPPING = UPDATE ID
+    else{
+        // UPDATE CAT
+        $category = new \PrestaShop\PrestaShop\Adapter\Entity\Category($mapping["prestashop_id"]);
+        $category->active = $data["BKHAG_ONLINE"];
+        $category->id_parent = $subId;
+        $category->name = [];
+        $category->link_rewrite = [];
+        foreach (Language::getLanguages(false) as $lang){
+            $category->name[$lang['id_lang']] = $data["BKHAGOMS"];
+            $category->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAGOMS"]);
+        }
+        $category->save();
+    }
+
+    return true;
+
+}
+
+function updateProduct($query){
+    // INIT Ohmega DB && SELECT RECORD
+    $db = db();
+    $data = $db->getRow($query);
+
+    // FIND MAPPING CAT
+    $sql = 'SELECT * FROM `'._DB_PREFIX_.'mgweb_ohmega_connect_mapping` WHERE `type` = "FRbkhARTIKELGROEP" AND ohmega_id = "'.$data["BKHAR_BKHAGNRINT"].'";';
+    $mappingCat = Db::getInstance()->getRow($sql);
+    if(!$mappingCat){
+        return false;
+    }
+    $categoryId = $mappingCat["prestashop_id"];
+
+    // CHECK FOR EXISTING MAPPING
+    $sql = 'SELECT * FROM `'._DB_PREFIX_.'mgweb_ohmega_connect_mapping` WHERE `type` = "FRbkhARTIKEL" AND ohmega_id = "'.$data["BKHARNRINT"].'";';
+    $mapping = Db::getInstance()->getRow($sql);
+
+    // NO MAPPING = NEW ID + CREATE MAPPING
+    if(!$mapping){
+        // GET FRordARTIKEL WEBSHOP
+        $bkhArtikelTaal = $db->getRow('SELECT * FROM FRbkhARTIKELTALEN WHERE BKHAT_BKHARNRINT = "'.$data["BKHARNRINT"].'" AND BKHAT_BKHTANRINT = "'.OHMEGA_TAAL.'"');
+
+        // CREATE CAT
+        $product = new \PrestaShop\PrestaShop\Adapter\Entity\Product();
+//        $product->active = 0;
+        $product->active = 1;
+        $product->id_category_default = $categoryId;
+        $product->reference = $data["BKHARCODE"];
+        $product->description_short = [];
+        $product->description = [];
+        $product->quantity = $data["BKHARAANTAL"];
+        $product->name = [];
+        $product->link_rewrite = [];
+        foreach (Language::getLanguages(false) as $lang){
+            $product->name[$lang['id_lang']] = substr($data["BKHAROMS"], 0, 50);
+            $product->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAROMS"]);
+            $product->description_short[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS"];
+            $product->description[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS_EXTRA"];
+        }
+        $product->price = $data["BKHARPRIJS"];
+        $product->width = $data["BKHAR_BREEDTE"];
+        $product->height = $data["BKHAR_HOOGTE"];
+        $product->depth = $data["BKHAR_LENGTE"];
+        $product->weight = $data["BKHARGEWICHT_GRAM"];
+        $product->ean13 = $data["BKHAREANCODE"];
+
+        $product->add();
+        $product->addToCategories([$categoryId]);
+
+        // CREATE MAPPING
+        $id = $product->getFields()["id_product"];
+        $mappingData = [
+            "id_mgweb_ohmega_connect_mapping" => 0,
+            "type" => "FRbkhARTIKEL",
+            "ohmega_id" => $data["BKHARNRINT"],
+            "prestashop_id" => $id
+        ];
+        Db::getInstance()->insert("mgweb_ohmega_connect_mapping", $mappingData);
+        
+    }
+
+    // OK MAPPING = UPDATE ID
+    else{
+        // GET FRordARTIKEL WEBSHOP
+        $bkhArtikelTaal = $db->getRow('SELECT * FROM FRbkhARTIKELTALEN WHERE BKHAT_BKHARNRINT = "'.$data["BKHARNRINT"].'" AND BKHAT_BKHTANRINT = "'.OHMEGA_TAAL.'"');
+
+        // GET FRordARTIKEL WEBSHOP
+        $ordWebshop = $db->getValue('SELECT ORDARWEBSHOP FROM FRordARTIKEL WHERE ORDARNRINT = "'.$data["BKHARNRINT"].'"');
+
+        // UPDATE CAT
+        $product = new \PrestaShop\PrestaShop\Adapter\Entity\Product($mapping["prestashop_id"]);
+//        $product->active = $ordWebshop;
+        $product->active = 1;
+        $product->id_category_default = $categoryId;
+        $product->reference = $data["BKHARCODE"];
+        $product->quantity = $data["BKHARAANTAL"];
+        $product->description_short = [];
+        $product->description = [];
+        $product->quantity = $data["BKHARAANTAL"];
+        $product->name = [];
+        $product->link_rewrite = [];
+        foreach (Language::getLanguages(false) as $lang){
+            $product->name[$lang['id_lang']] = substr($data["BKHAROMS"], 0, 50);
+            $product->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAROMS"]);
+            $product->description_short[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS"];
+            $product->description[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS_EXTRA"];
+        }
+        $product->price = $data["BKHARPRIJS"];
+        $product->width = $data["BKHAR_BREEDTE"];
+        $product->height = $data["BKHAR_HOOGTE"];
+        $product->depth = $data["BKHAR_LENGTE"];
+        $product->weight = $data["BKHARGEWICHT_GRAM"];
+        $product->ean13 = $data["BKHAREANCODE"];
+        $product->save();
+    }
+
+    return true;
+}
 
 function executeQuery($type, $query){
     switch($type){
         case "category":
-            updateCategory($query);
+            return updateCategory($query);
+        case "product":
+            return updateProduct($query);
 
     }
 }
