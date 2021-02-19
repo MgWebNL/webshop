@@ -32,6 +32,7 @@
 $sql = array();
 
 $sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'mgweb_ohmega_connect`;';
+$sql[] = 'DROP TABLE `' . _DB_PREFIX_ . 'mgweb_ohmega_connect_mapping`;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

@@ -34,7 +34,18 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'mgweb_ohmega_connect` (
     PRIMARY KEY  (`id_mgweb_ohmega_connect`)
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'INSERT INTO `' . _DB_PREFIX_ . 'mgweb_ohmega_connect` (`id_mgweb_ohmega_connect`) VALUES (NULL);';
+$sql[] = 'INSERT INTO `' . _DB_PREFIX_ . 'mgweb_ohmega_connect` (`id_mgweb_ohmega_connect`) VALUES (1);';
+
+$sql[] = 'CREATE TABLE `' . _DB_PREFIX_ . 'mgweb_ohmega_connect_mapping`( 
+	`id_mgweb_ohmega_connect_mapping` Int( 11 ) AUTO_INCREMENT NOT NULL,
+	`type` VarChar( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+	`ohmega_id` VarChar( 10 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+	`prestashop_id` Int( 11 ) NOT NULL,
+	PRIMARY KEY ( `id_mgweb_ohmega_connect_mapping` ) )
+CHARACTER SET = utf8
+COLLATE = utf8_general_ci
+ENGINE = InnoDB
+AUTO_INCREMENT = 1;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

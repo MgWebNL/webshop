@@ -8,6 +8,8 @@
 
 const OHMEGA_TAAL = 'CHQF6SB2';
 
+ini_set('max_execution_time', '300'); //300 seconds = 5 minutes
+
 include(dirname(__FILE__).'/../../config/config.inc.php');
 
 include(dirname(__FILE__).'/../../init.php');
@@ -25,12 +27,8 @@ foreach($data as $sql){
         // UPDATE RECORD MIDDLEWARE OHMEGA
         updateMiddleware($sql["WBSMWNRINT"]);
     }
-
-    print_r($type);
 }
-
-//mail('mike@mgweb.nl','Token ok', 'Token is ok');
-die();
+die('Done');
 
 
 function getConfig(){
@@ -83,7 +81,7 @@ function updateCategory($query){
         $category->name = [];
         $category->link_rewrite = [];
         foreach (Language::getLanguages(false) as $lang){
-            $category->name[$lang['id_lang']] = $data["BKHAGOMS"];
+            $category->name[$lang['id_lang']] = seo_friendly($data["BKHAGOMS"]);
             $category->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAGOMS"]);
         }
         $category->add();
@@ -108,7 +106,7 @@ function updateCategory($query){
         $category->name = [];
         $category->link_rewrite = [];
         foreach (Language::getLanguages(false) as $lang){
-            $category->name[$lang['id_lang']] = $data["BKHAGOMS"];
+            $category->name[$lang['id_lang']] = seo_friendly($data["BKHAGOMS"]);
             $category->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAGOMS"]);
         }
         $category->save();
@@ -152,7 +150,7 @@ function updateProduct($query){
         $product->name = [];
         $product->link_rewrite = [];
         foreach (Language::getLanguages(false) as $lang){
-            $product->name[$lang['id_lang']] = substr($data["BKHAROMS"], 0, 50);
+            $product->name[$lang['id_lang']] = seo_friendly($data["BKHAROMS"]);
             $product->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAROMS"]);
             $product->description_short[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS"];
             $product->description[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS_EXTRA"];
@@ -200,7 +198,7 @@ function updateProduct($query){
         $product->name = [];
         $product->link_rewrite = [];
         foreach (Language::getLanguages(false) as $lang){
-            $product->name[$lang['id_lang']] = substr($data["BKHAROMS"], 0, 50);
+            $product->name[$lang['id_lang']] = seo_friendly($data["BKHAROMS"]);
             $product->link_rewrite[$lang['id_lang']] = Mgweb_ohmega_connect::slugify($data["BKHAROMS"]);
             $product->description_short[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS"];
             $product->description[$lang['id_lang']] = $bkhArtikelTaal["BKHATOMS_EXTRA"];
@@ -215,6 +213,17 @@ function updateProduct($query){
     }
 
     return true;
+}
+
+function seo_friendly($string){
+    $string = str_replace(array('[\', \']'), '', $string);
+    $string = preg_replace('/\[.*\]/U', '', $string);
+    $string = preg_replace('/&(amp;)?#?[a-z0-9]+;/i', '-', $string);
+    $string = htmlentities($string, ENT_COMPAT, 'utf-8');
+    $string = preg_replace('/&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);/i', '\\1', $string );
+    $string = preg_replace(array('/[^a-z0-9 ]/i', '/[-]+/') , '-', $string);
+    dump($string);
+    return substr(trim(htmlentities($string), '-'), 0, 50);
 }
 
 function executeQuery($type, $query){
