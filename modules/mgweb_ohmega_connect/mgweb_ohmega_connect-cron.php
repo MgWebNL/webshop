@@ -76,7 +76,7 @@ function updateCategory($query){
     if(!$mapping){
         // CREATE CAT
         $category = new \PrestaShop\PrestaShop\Adapter\Entity\Category();
-        $category->active = 0;
+        $category->active = 1;
         $category->id_parent = $subId;
         $category->name = [];
         $category->link_rewrite = [];
