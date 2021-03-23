@@ -291,6 +291,21 @@ class Mgweb_ohmega_connect extends Module
             return null;
         }
         $db = new DbMySQLi($config['db_host'], $config['db_user'], $config['db_pass'], $config['db_name']);
+
+//        $data = $db->getRow("SELECT * FROM FRbkhARTIKEL WHERE BKHARPLAATJE_BESTAND IS NOT NULL");
+//
+//        $buffer = $data["BKHARPLAATJE_BESTAND"];
+//        $finfo = new finfo(FILEINFO_MIME_TYPE);
+//        $finfo2 = new finfo(FILEINFO_EXTENSION);
+//        $mime = $finfo->buffer($buffer);
+//        $ext = explode("/", $finfo2->buffer($buffer))[0];
+//
+//        echo $buffer;
+//        header("Content-Description: File Transfer");
+//        header("Content-Type: ".$mime);
+//        header("Content-Disposition: attachment; filename=\"". basename("test.".$ext) ."\"");
+//        die();
+
         $data = $db->executeS("SELECT * FROM FRwebMIDDELWARE WHERE WBSMWVERWERKT <> 1 AND WBSMWNRINT <> '' LIMIT 99999999");
         return $data;
     }
